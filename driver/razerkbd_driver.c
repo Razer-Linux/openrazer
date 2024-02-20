@@ -2691,11 +2691,7 @@ static ssize_t razer_attr_write_matrix_brightness(struct device *dev, struct dev
 
     case USB_DEVICE_ID_RAZER_NOSTROMO:
     default:
-        if (is_blade_laptop(device)) {
-            request = razer_chroma_misc_set_blade_brightness(brightness);
-        } else {
-            request = razer_chroma_standard_set_led_brightness(VARSTORE, BACKLIGHT_LED, brightness);
-        }
+        request = razer_chroma_standard_set_led_brightness(VARSTORE, BACKLIGHT_LED, brightness);
         request.transaction_id.id = 0xFF;
         break;
     }
@@ -2778,11 +2774,7 @@ static ssize_t razer_attr_read_matrix_brightness(struct device *dev, struct devi
 
     case USB_DEVICE_ID_RAZER_NOSTROMO:
     default:
-        if (is_blade_laptop(device)) {
-            request = razer_chroma_misc_get_blade_brightness();
-        } else {
-            request = razer_chroma_standard_get_led_brightness(VARSTORE, BACKLIGHT_LED);
-        }
+        request = razer_chroma_standard_get_led_brightness(VARSTORE, BACKLIGHT_LED);
         request.transaction_id.id = 0xFF;
         break;
     }
@@ -2790,11 +2782,7 @@ static ssize_t razer_attr_read_matrix_brightness(struct device *dev, struct devi
     razer_send_payload(device, &request, &response);
 
     // Brightness is stored elsewhere for the stealth cmds
-    if (is_blade_laptop(device)) {
-        brightness = response.arguments[1];
-    } else {
-        brightness = response.arguments[2];
-    }
+    brightness = response.arguments[2];
 
     return sprintf(buf, "%d\n", brightness);
 }
