@@ -150,6 +150,9 @@
 #define RAZER_FIREFLY_WAIT_MIN_US 900
 #define RAZER_FIREFLY_WAIT_MAX_US 1000
 
+#define RAZER_ZONE_CPU 0x01
+#define RAZER_ZONE_GPU 0x02
+
 struct razer_kbd_device {
     struct usb_device *usb_dev;
     struct mutex lock;
