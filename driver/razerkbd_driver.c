@@ -3401,6 +3401,10 @@ static DEVICE_ATTR(charge_status,           0440, razer_attr_read_charge_status,
 static DEVICE_ATTR(charge_effect,           0220, NULL,                                       razer_attr_write_charge_effect);
 static DEVICE_ATTR(charge_colour,           0220, NULL,                                       razer_attr_write_charge_colour);
 static DEVICE_ATTR(charge_low_threshold,    0660, razer_attr_read_charge_low_threshold,       razer_attr_write_charge_low_threshold);
+// laptop specific
+static DEVICE_ATTR(fan_speed,               0660, razer_attr_read_fan_speed,                  razer_attr_write_fan_speed);
+static DEVICE_ATTR(power_mode,              0660, razer_attr_read_power_mode,                 razer_attr_write_power_mode);
+static DEVICE_ATTR(bho,                     0660, razer_attr_read_bho,                        razer_attr_write_bho);
 
 /**
  * Deal with FN toggle
@@ -3821,6 +3825,48 @@ static void razer_kbd_init(struct razer_kbd_device *dev, struct usb_interface *i
     dev->usb_interface_protocol = intf->cur_altsetting->desc.bInterfaceProtocol;
 }
 
+static int backlight_sysfs_set(struct led_classdev *led_cdev, enum led_brightness brightness) {
+    struct device *dev = led_cdev->dev->parent;
+    struct hid_device *hdev = to_hid_device(dev);
+    struct razer_kbd_device *device = hid_get_drvdata(hdev);
+
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+
+    request = razer_chroma_standard_set_led_brightness(VARSTORE, BACKLIGHT_LED, brightness);
+    request.transaction_id.id = 0xFF;
+    razer_send_payload(device, &request, &response);
+
+    return 1;
+}
+
+static enum led_brightness backlight_sysfs_get(struct led_classdev *ledclass) {
+    struct device *dev = led_cdev->dev->parent;
+    struct hid_device *hdev = to_hid_device(dev);
+    struct razer_kbd_device *device = hid_get_drvdata(hdev);
+
+    unsigned char brightness = 0;
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+
+
+    request = razer_chroma_standard_get_led_brightness(VARSTORE, BACKLIGHT_LED);
+    request.transaction_id.id = 0xFF;
+
+    razer_send_payload(device, &request, &response);
+    brightness = response.arguments[2];
+
+    return brightness;
+}
+
+static struct led_classdev kbd_backlight = {
+        .name = "razerlaptop::kbd_backlight",
+        .max_brightness = 255,
+        .flags = LED_BRIGHT_HW_CHANGED,
+        .brightness_set_blocking = &backlight_sysfs_set,
+        .brightness_get = &backlight_sysfs_get,
+};
+
 /**
  * Probe method is ran whenever a device is binded to the driver
  */
@@ -4212,6 +4258,9 @@ static int razer_kbd_probe(struct hid_device *hdev, const struct hid_device_id *
             CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_matrix_effect_custom);          // Custom effect
             CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_matrix_custom_frame);           // Set LED matrix
             CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_logo_led_state);                // Enable/Disable the logo
+            CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_fan_speed);                     // Fan speed/mode
+            CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_power_mode);                    // Laptop power mode
+            CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_bho);                           // Laptop battery health optimizer
             break;
 
         case USB_DEVICE_ID_RAZER_BLADE_PRO_EARLY_2020:
@@ -4270,6 +4319,14 @@ static int razer_kbd_probe(struct hid_device *hdev, const struct hid_device_id *
     // Leave autosuspend on for laptops
     if (!is_blade_laptop(dev)) {
         usb_disable_autosuspend(usb_dev);
+    }
+
+    if(is_blade_laptop(dev)) {
+        retval = led_classdev_register(&hdev->dev, &kbd_backlight);
+        if(retval < 0) {
+            hid_err(hdev, "Failed to setup backlight!\n");
+            goto exit_free;
+        }
     }
 
     //razer_activate_macro_keys(usb_dev);
@@ -4664,6 +4721,9 @@ static void razer_kbd_disconnect(struct hid_device *hdev)
             device_remove_file(&hdev->dev, &dev_attr_matrix_effect_custom);          // Custom effect
             device_remove_file(&hdev->dev, &dev_attr_matrix_custom_frame);           // Set LED matrix
             device_remove_file(&hdev->dev, &dev_attr_logo_led_state);                // Enable/Disable the logo
+            device_remove_file(&hdev->dev, &dev_attr_fan_speed);                     // Fan speed/mode
+            device_remove_file(&hdev->dev, &dev_attr_power_mode);                    // Laptop power mode
+            device_remove_file(&hdev->dev, &dev_attr_bho);                           // Laptop battery health optimizer
             break;
 
         case USB_DEVICE_ID_RAZER_BLADE_PRO_EARLY_2020:
