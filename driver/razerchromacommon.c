@@ -1598,3 +1598,89 @@ struct razer_report razer_chroma_misc_set_hyperpolling_wireless_dongle_unpair(un
 
     return report;
 }
+
+/**
+ * Set power mode
+ */
+struct razer_report razer_chroma_set_power_mode(unsigned char mode, unsigned char zone, unsigned char fan_rpm)
+{
+    struct razer_report report = get_razer_report(0x0d, 0x02, 0x04);
+    report.arguments[0] = 0x00;
+    report.arguments[1] = zone;
+    report.arguments[2] = mode;
+    if(fan_rpm) {
+        report.arguments[3] = 0x01;
+    } else {
+        report.arguments[3] = 0x00;
+    }
+}
+
+/**
+ * Get power mode
+ */
+struct razer_report razer_chroma_get_power_mode(unsigned char zone)
+{
+    struct razer_report report = get_razer_report(0x0d, 0x82, 0x04);
+    report.arguments[0] = 0x00;
+    report.arguments[1] = zone;
+    report.arguments[2] = 0x00;
+    report.arguments[3] = 0x00;
+
+    return report;
+}
+
+/**
+ * Set CPU boost
+ * 1 - CPU
+ * 2 - GPU
+ */
+struct razer_report razer_chroma_set_boost(unsigned char zone, unsigned char boost)
+{
+    struct razer_report report = get_razer_report(0x0d, 0x07, 0x03);
+    report.arguments[0] = 0x00;
+    report.arguments[1] = zone;
+    report.arguments[2] = boost;
+
+    return report;
+}
+
+/**
+ * Get CPU boost
+ */
+struct razer_report razer_chroma_get_boost(unsigned char zone)
+{
+    struct razer_report report = get_razer_report(0x0d, 0x87, 0x03);
+    report.arguments[0] = 0x00;
+    report.arguments[1] = zone;
+    report.arguments[2] = 0x00;
+
+    return report;
+}
+
+/**
+ * Set fan speed
+ */
+struct razer_report razer_chroma_set_fan_speed(unsigned char zone, unsigned char fan_rpm)
+{
+    struct razer_report report = get_razer_report(0x0d, 0x01, 0x03);
+    report.arguments[0] = 0x00;
+    report.arguments[1] = zone;
+    report.arguments[2] = fan_rpm;
+
+    return report;
+}
+
+/**
+ * Get fan speed
+ */
+struct razer_report razer_chroma_get_fan_speed(unsigned char zone)
+{
+    struct razer_report report = get_razer_report(0x0d, 0x81, 0x03);
+    report.transaction_id.id = 0x1f;
+
+    report.arguments[0] = 0x00;
+    report.arguments[1] = zone;
+    report.arguments[2] = 0x00;
+
+    return report;
+}

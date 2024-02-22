@@ -154,4 +154,13 @@ struct razer_report razer_chroma_misc_set_hyperpolling_wireless_dongle_pair_step
 struct razer_report razer_chroma_misc_set_hyperpolling_wireless_dongle_pair_step2(unsigned short pid);
 struct razer_report razer_chroma_misc_set_hyperpolling_wireless_dongle_unpair(unsigned short pid);
 
+struct razer_report razer_chroma_set_power_mode(unsigned char mode, unsigned char zone, unsigned char fan_rpm);
+struct razer_report razer_chroma_get_power_mode(unsigned char zone);
+
+struct razer_report razer_chroma_set_boost(unsigned char zone, unsigned char boost);
+struct razer_report razer_chroma_get_boost(unsigned char zone);
+
+struct razer_report razer_chroma_set_fan_speed(unsigned char zone, unsigned char fan_rpm);
+struct razer_report razer_chroma_get_fan_speed(unsigned char zone);
+
 #endif
