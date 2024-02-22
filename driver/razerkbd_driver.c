@@ -3191,21 +3191,27 @@ static ssize_t razer_attr_write_fan_speed(struct device *dev, struct device_attr
     }
 
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     mode = response.arguments[2];
     request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     if(rpm){
         request = razer_chroma_set_fan_speed(RAZER_ZONE_CPU, rpm);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
     }
     request = razer_chroma_get_power_mode(RAZER_ZONE_GPU);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     mode = response.arguments[2];
     request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     if(rpm){
         request = razer_chroma_set_fan_speed(RAZER_ZONE_GPU, rpm);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
     }
 
@@ -3225,10 +3231,12 @@ static ssize_t razer_attr_read_fan_speed(struct device *dev, struct device_attri
     unsigned char rpm = 0;
 
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     rpm = response.arguments[3];
     if(rpm){
         request = razer_chroma_get_fan_speed(RAZER_ZONE_CPU);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
         rpm = response.arguments[2];
     }
@@ -3268,30 +3276,38 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
     }
 
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     rpm[RAZER_ZONE_CPU] = response.arguments[3];
 
     request = razer_chroma_get_power_mode(RAZER_ZONE_GPU);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     rpm[RAZER_ZONE_GPU] = response.arguments[3];
 
     if(mode <= 2) {
         request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
         request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
     } else if(mode == 4) {
         rpm[RAZER_ZONE_CPU] = 0x00;
         rpm[RAZER_ZONE_GPU] = 0x00;
         request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
         boost = clamp_u8(buf[RAZER_ZONE_CPU], 0, 4);
         request = razer_chroma_set_boost(RAZER_ZONE_CPU, boost);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
         boost = clamp_u8(buf[RAZER_ZONE_GPU], 0, 3);
         request = razer_chroma_set_boost(RAZER_ZONE_GPU, boost);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
         request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
     }
 
@@ -3310,6 +3326,7 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
     struct razer_report response = {0};
 
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
+    request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     mode = response.arguments[2];
     buf[0] = mode;
@@ -3317,9 +3334,11 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
     {
         count = 3;
         request = razer_chroma_get_boost(RAZER_ZONE_CPU);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
         buf[RAZER_ZONE_CPU] = response.arguments[2];
         request = razer_chroma_get_boost(RAZER_ZONE_GPU);
+        request.transaction_id.id = 0xFF;
         razer_send_payload(device, &request, &response);
         buf[RAZER_ZONE_GPU] = response.arguments[2];
     }
