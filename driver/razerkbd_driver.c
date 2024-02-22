@@ -3186,7 +3186,7 @@ static ssize_t razer_attr_write_fan_speed(struct device *dev, struct device_attr
 
     if(rpm != 0)
     {
-        rpm = clamp_u16(fan_speed, 3500, 5300);
+        rpm = clamp_u16(rpm, 3500, 5300);
         rpm /= 100;
     }
 
@@ -3285,10 +3285,10 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
         rpm[RAZER_ZONE_GPU] = 0x00;
         request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
         razer_send_payload(device, &request, &response);
-        boost = clamp_u8(buf[RAZER_ZONE_CPU], 0, 4)
+        boost = clamp_u8(buf[RAZER_ZONE_CPU], 0, 4);
         request = razer_chroma_set_boost(RAZER_ZONE_CPU, boost);
         razer_send_payload(device, &request, &response);
-        boost = clamp_u8(buf[RAZER_ZONE_GPU], 0, 3)
+        boost = clamp_u8(buf[RAZER_ZONE_GPU], 0, 3);
         request = razer_chroma_set_boost(RAZER_ZONE_GPU, boost);
         razer_send_payload(device, &request, &response);
         request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
@@ -3305,14 +3305,15 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
 {
     struct razer_kbd_device *device = dev_get_drvdata(dev);
     unsigned char count = 1;
+    unsigned char mode = 0;
     struct razer_report request = {0};
     struct razer_report response = {0};
 
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
     razer_send_payload(device, &request, &response);
-    device->mode = response.arguments[2];
-    buf[0] = device->mode;
-    if(device->mode == 4)
+    mode = response.arguments[2];
+    buf[0] = mode;
+    if(mode == 4)
     {
         count = 3;
         request = razer_chroma_get_boost(RAZER_ZONE_CPU);
@@ -3840,7 +3841,7 @@ static int backlight_sysfs_set(struct led_classdev *led_cdev, enum led_brightnes
     return 1;
 }
 
-static enum led_brightness backlight_sysfs_get(struct led_classdev *ledclass) {
+static enum led_brightness backlight_sysfs_get(struct led_classdev *led_cdev) {
     struct device *dev = led_cdev->dev->parent;
     struct hid_device *hdev = to_hid_device(dev);
     struct razer_kbd_device *device = hid_get_drvdata(hdev);
