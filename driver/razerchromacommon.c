@@ -1613,6 +1613,8 @@ struct razer_report razer_chroma_set_power_mode(unsigned char mode, unsigned cha
     } else {
         report.arguments[3] = 0x00;
     }
+
+    return report;
 }
 
 /**

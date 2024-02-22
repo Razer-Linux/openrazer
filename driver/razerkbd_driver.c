@@ -3332,7 +3332,7 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
  */
 static ssize_t razer_attr_write_bho(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    // struct razer_kbd_device *device = dev_get_drvdata(dev);
 
     // TODO
 
@@ -3344,7 +3344,7 @@ static ssize_t razer_attr_write_bho(struct device *dev, struct device_attribute 
  */
 static ssize_t razer_attr_read_bho(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    // struct razer_kbd_device *device = dev_get_drvdata(dev);
 
     // TODO
 
