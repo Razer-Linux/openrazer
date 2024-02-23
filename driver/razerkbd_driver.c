@@ -50,6 +50,8 @@ MODULE_LICENSE(DRIVER_LICENSE);
 #define KEY_MACRO30 0x2ad
 #endif
 
+static int loaded = 0;
+
 // These are evdev key codes, not HID key codes.
 // Lower macro key codes are intended for the actual macro keys
 // Higher macro key codes are inteded for Chroma functions
@@ -4342,12 +4344,13 @@ static int razer_kbd_probe(struct hid_device *hdev, const struct hid_device_id *
         usb_disable_autosuspend(usb_dev);
     }
 
-    if(is_blade_laptop(dev)) {
+    if(is_blade_laptop(dev) && !loaded) {
         retval = led_classdev_register(&hdev->dev, &kbd_backlight);
         if(retval < 0) {
             hid_err(hdev, "Failed to setup backlight!\n");
             goto exit_free;
         }
+        loaded = 1;
     }
 
     //razer_activate_macro_keys(usb_dev);
@@ -4781,6 +4784,11 @@ static void razer_kbd_disconnect(struct hid_device *hdev)
         device_remove_file(&hdev->dev, &dev_attr_key_super);
         device_remove_file(&hdev->dev, &dev_attr_key_alt_tab);
         device_remove_file(&hdev->dev, &dev_attr_key_alt_f4);
+    }
+
+    if(is_blade_laptop(dev) && loaded) {
+        led_classdev_unregister(&kbd_backlight);
+        loaded = 0;
     }
 
     hid_hw_stop(hdev);
