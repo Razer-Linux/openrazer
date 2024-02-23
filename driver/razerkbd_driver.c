@@ -209,6 +209,7 @@ static const struct razer_key_translation *find_translation(const struct razer_k
     const struct razer_key_translation *result;
 
     for (result = key_table; result->from; result++) {
+        printk(KERN_WARNING "razerkbd: result->from: %x, from %x\n", result->from, from);
         if (result->from == from) {
             return result;
         }
