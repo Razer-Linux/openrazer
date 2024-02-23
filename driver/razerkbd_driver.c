@@ -194,6 +194,13 @@ static const struct razer_key_translation chroma_keys_5[] = {
     { 0 }
 };
 
+// for razer laptops
+static const struct razer_key_translation chroma_keys_6[] = {
+    { KEY_F10, RAZER_BRIGHTNESS_DOWN },
+    { KEY_F11, RAZER_BRIGHTNESS_UP },
+    { 0 }
+};
+
 /**
  * Essentially search through the struct array above.
  */
@@ -3438,6 +3445,20 @@ static int razer_event(struct hid_device *hdev, struct hid_field *field, struct 
 
     // No translations needed on the Blades
     if (is_blade_laptop(device)) {
+        translation = find_translation(chroma_keys_6, usage->code);
+        if(translation) {
+            unsigned char brightness = 0;
+            struct razer_report request = {0};
+            struct razer_report response = {0};
+
+            request = razer_chroma_standard_get_led_brightness(VARSTORE, BACKLIGHT_LED);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            brightness = response.arguments[2];
+
+            led_classdev_notify_brightness_hw_changed(&kbd_backlight, brightness);
+        }
+
         return 0;
     }
 
