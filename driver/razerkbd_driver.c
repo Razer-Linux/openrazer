@@ -3872,15 +3872,16 @@ static enum led_brightness backlight_sysfs_get(struct led_classdev *led_cdev) {
 
     request = razer_chroma_standard_get_led_brightness(VARSTORE, BACKLIGHT_LED);
     request.transaction_id.id = 0xFF;
-
     razer_send_payload(device, &request, &response);
     brightness = response.arguments[2];
+
+    printk(KERN_WARNING "razerkbd: brightness read %d\n", brightness);
 
     return brightness;
 }
 
 static struct led_classdev kbd_backlight = {
-        .name = "razerlaptop::kbd_backlight",
+        .name = "razer::kbd_backlight",
         .max_brightness = 255,
         .flags = LED_BRIGHT_HW_CHANGED,
         .brightness_set_blocking = &backlight_sysfs_set,
