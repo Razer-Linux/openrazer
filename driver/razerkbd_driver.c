@@ -259,50 +259,6 @@ static bool is_blade_laptop(struct razer_kbd_device *device)
     return false;
 }
 
-static int backlight_sysfs_set(struct led_classdev *led_cdev, enum led_brightness brightness) {
-    struct device *dev = led_cdev->dev->parent;
-    struct hid_device *hdev = to_hid_device(dev);
-    struct razer_kbd_device *device = hid_get_drvdata(hdev);
-
-    struct razer_report request = {0};
-    struct razer_report response = {0};
-
-    request = razer_chroma_standard_set_led_brightness(VARSTORE, BACKLIGHT_LED, brightness);
-    request.transaction_id.id = 0xFF;
-    razer_send_payload(device, &request, &response);
-
-    return 1;
-}
-
-static enum led_brightness backlight_sysfs_get(struct led_classdev *led_cdev) {
-    struct device *dev = led_cdev->dev->parent;
-    struct hid_device *hdev = to_hid_device(dev);
-    struct razer_kbd_device *device = hid_get_drvdata(hdev);
-
-    unsigned char brightness = 0;
-    struct razer_report request = {0};
-    struct razer_report response = {0};
-
-
-    request = razer_chroma_standard_get_led_brightness(VARSTORE, BACKLIGHT_LED);
-    request.transaction_id.id = 0xFF;
-    razer_send_payload(device, &request, &response);
-    brightness = response.arguments[2];
-
-    printk(KERN_WARNING "razerkbd: brightness read %d\n", brightness);
-
-    return brightness;
-}
-
-static struct led_classdev kbd_backlight = {
-        .name = "razer::kbd_backlight",
-        .max_brightness = 255,
-        .flags = LED_BRIGHT_HW_CHANGED,
-        .brightness_set_blocking = &backlight_sysfs_set,
-        .brightness_get = &backlight_sysfs_get,
-};
-
-
 
 /**
  * Get request/response indices and timing parameters for the device
@@ -428,6 +384,49 @@ static int razer_send_payload(struct razer_kbd_device *device, struct razer_repo
 
     return 0;
 }
+
+static int backlight_sysfs_set(struct led_classdev *led_cdev, enum led_brightness brightness) {
+    struct device *dev = led_cdev->dev->parent;
+    struct hid_device *hdev = to_hid_device(dev);
+    struct razer_kbd_device *device = hid_get_drvdata(hdev);
+
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+
+    request = razer_chroma_standard_set_led_brightness(VARSTORE, BACKLIGHT_LED, brightness);
+    request.transaction_id.id = 0xFF;
+    razer_send_payload(device, &request, &response);
+
+    return 1;
+}
+
+static enum led_brightness backlight_sysfs_get(struct led_classdev *led_cdev) {
+    struct device *dev = led_cdev->dev->parent;
+    struct hid_device *hdev = to_hid_device(dev);
+    struct razer_kbd_device *device = hid_get_drvdata(hdev);
+
+    unsigned char brightness = 0;
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+
+
+    request = razer_chroma_standard_get_led_brightness(VARSTORE, BACKLIGHT_LED);
+    request.transaction_id.id = 0xFF;
+    razer_send_payload(device, &request, &response);
+    brightness = response.arguments[2];
+
+    printk(KERN_WARNING "razerkbd: brightness read %d\n", brightness);
+
+    return brightness;
+}
+
+static struct led_classdev kbd_backlight = {
+        .name = "razer::kbd_backlight",
+        .max_brightness = 255,
+        .flags = LED_BRIGHT_HW_CHANGED,
+        .brightness_set_blocking = &backlight_sysfs_set,
+        .brightness_get = &backlight_sysfs_get,
+};
 
 /**
  * Reads the physical layout of the keyboard.
