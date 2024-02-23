@@ -3292,9 +3292,7 @@ static ssize_t razer_attr_read_fan_speed(struct device *dev, struct device_attri
         rpm = response.arguments[2];
     }
 
-    buf[0] = rpm * 100;
-
-    return 1;
+    return sprintf(buf, "%d\n", rpm * 100);
 }
 
 /**
