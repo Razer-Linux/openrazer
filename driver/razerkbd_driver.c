@@ -3334,12 +3334,7 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
     }
 
     pr_info("razer laptop: request mode %s", buf);
-    // mode = clamp_u8(buf[0], 0, 4);
 
-    // if((mode == 4) && (count < 3)) {
-    //     printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
-    //     return -EINVAL;
-    // }
     for (i = 0; performance_level[i].name; ++i) {
         const struct razer_performance_level *level = &performance_level[i];
         if (!strncasecmp(level->name, buf, strlen(level->name))) {
@@ -3405,18 +3400,6 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
     request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
-    // if(mode == 4)
-    // {
-    //     count = 3;
-    //     request = razer_chroma_get_boost(RAZER_ZONE_CPU);
-    //     request.transaction_id.id = 0xFF;
-    //     razer_send_payload(device, &request, &response);
-    //     buf[RAZER_ZONE_CPU] = response.arguments[2];
-    //     request = razer_chroma_get_boost(RAZER_ZONE_GPU);
-    //     request.transaction_id.id = 0xFF;
-    //     razer_send_payload(device, &request, &response);
-    //     buf[RAZER_ZONE_GPU] = response.arguments[2];
-    // }
 
     for (i = 0; performance_level[i].name; ++i) {
         if (response.arguments[2] == performance_level[i].value) {
