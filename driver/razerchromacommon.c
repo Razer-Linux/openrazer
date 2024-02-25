@@ -1686,3 +1686,25 @@ struct razer_report razer_chroma_get_fan_speed(unsigned char zone)
 
     return report;
 }
+
+/**
+ * Set bho
+ */
+struct razer_report razer_chroma_set_bho(unsigned char threshold)
+{
+    struct razer_report report = get_razer_report(0x07, 0x12, 0x01);
+    report.arguments[0] = threshold;
+
+    return report;
+}
+
+/**
+ * Get bho
+ */
+struct razer_report razer_chroma_get_bho(void)
+{
+    struct razer_report report = get_razer_report(0x07, 0x92, 0x01);
+    report.arguments[0] = 0x00;
+
+    return report;
+}

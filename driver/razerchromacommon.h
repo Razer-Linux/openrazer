@@ -163,4 +163,7 @@ struct razer_report razer_chroma_get_boost(unsigned char zone);
 struct razer_report razer_chroma_set_fan_speed(unsigned char zone, unsigned char fan_rpm);
 struct razer_report razer_chroma_get_fan_speed(unsigned char zone);
 
+struct razer_report razer_chroma_set_bho(unsigned char threshold);
+struct razer_report razer_chroma_get_bho(void);
+
 #endif

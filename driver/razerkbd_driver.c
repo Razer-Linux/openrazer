@@ -3611,11 +3611,15 @@ static ssize_t razer_attr_write_bho(struct device *dev, struct device_attribute 
  */
 static ssize_t razer_attr_read_bho(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    // struct razer_kbd_device *device = dev_get_drvdata(dev);
+    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    struct razer_report request = {0};
+    struct razer_report response = {0};
 
-    // TODO
+    request = razer_chroma_get_bho();
+    request.transaction_id.id = 0xFF;
+    razer_send_payload(device, &request, &response);
 
-    return 1;
+    return sprintf(buf, "%d\n", response.arguments[0]);
 }
 
 /**
