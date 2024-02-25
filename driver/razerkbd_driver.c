@@ -3326,54 +3326,64 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
     unsigned char rpm[3] = {0};
     struct razer_report request = {0};
     struct razer_report response = {0};
+    unsigned char i;
 
     if (count < 1) {
         printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
         return -EINVAL;
     }
 
-    mode = clamp_u8(buf[0], 0, 4);
+    // mode = clamp_u8(buf[0], 0, 4);
 
-    if((mode == 4) && (count < 3)) {
-        printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
+    // if((mode == 4) && (count < 3)) {
+    //     printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
+    //     return -EINVAL;
+    // }
+    for (i = 0; performance_level[i].name; ++i) {
+        const struct razer_performance_level *level = performance_level[i];
+        if (!strncasecmp(level->name, buf, strlen(level->name))) {
+            mode = level->value;
+            request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            rpm[RAZER_ZONE_CPU] = response.arguments[3]; // save fan mode
+
+            request = razer_chroma_get_power_mode(RAZER_ZONE_GPU);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            rpm[RAZER_ZONE_GPU] = response.arguments[3]; // save fan mode
+
+            if(mode <= 2) {
+                request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+                request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+            } else if(mode == 4) {
+                rpm[RAZER_ZONE_CPU] = 0x00;
+                rpm[RAZER_ZONE_GPU] = 0x00;
+                request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+                boost = 0x01;
+                request = razer_chroma_set_boost(RAZER_ZONE_CPU, boost);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+                boost = 0x01;
+                request = razer_chroma_set_boost(RAZER_ZONE_GPU, boost);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+                request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+            }
+            break;
+        }
+    }
+
+    if (performance_level[i].name)
         return -EINVAL;
-    }
-
-    request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
-    request.transaction_id.id = 0xFF;
-    razer_send_payload(device, &request, &response);
-    rpm[RAZER_ZONE_CPU] = response.arguments[3];
-
-    request = razer_chroma_get_power_mode(RAZER_ZONE_GPU);
-    request.transaction_id.id = 0xFF;
-    razer_send_payload(device, &request, &response);
-    rpm[RAZER_ZONE_GPU] = response.arguments[3];
-
-    if(mode <= 2) {
-        request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-        request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-    } else if(mode == 4) {
-        rpm[RAZER_ZONE_CPU] = 0x00;
-        rpm[RAZER_ZONE_GPU] = 0x00;
-        request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-        boost = clamp_u8(buf[RAZER_ZONE_CPU], 0, 4);
-        request = razer_chroma_set_boost(RAZER_ZONE_CPU, boost);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-        boost = clamp_u8(buf[RAZER_ZONE_GPU], 0, 3);
-        request = razer_chroma_set_boost(RAZER_ZONE_GPU, boost);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-        request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-    }
 
     return count;
 }
