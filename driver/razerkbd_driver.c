@@ -3386,7 +3386,7 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
     }
 
     pr_info("razer laptop: mode check %s", performance_level[i].name);
-    if (performance_level[i].name)
+    if (!performance_level[i].name)
         return -EINVAL;
 
     return count;
