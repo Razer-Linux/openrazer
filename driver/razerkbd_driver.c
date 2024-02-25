@@ -3333,6 +3333,7 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
         return -EINVAL;
     }
 
+    pr_info("razer laptop: request mode %s", buf);
     // mode = clamp_u8(buf[0], 0, 4);
 
     // if((mode == 4) && (count < 3)) {
@@ -3378,10 +3379,13 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
                 request.transaction_id.id = 0xFF;
                 razer_send_payload(device, &request, &response);
             }
+
+            pr_info("razer laptop: mode set %s", level->name);
             break;
         }
     }
 
+    pr_info("razer laptop: mode check %s", performance_level[i].name);
     if (performance_level[i].name)
         return -EINVAL;
 
