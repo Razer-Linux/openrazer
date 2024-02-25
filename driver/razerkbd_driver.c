@@ -203,7 +203,7 @@ static const struct razer_performance_level performance_level[] = {
     { 0 },
 };
 
-static const struct razer_boost_level boost_level[] = {
+static const struct razer_performance_level boost_level[] = {
     { "low", 0 },
     { "normal", 1},
     { "high", 2 },
