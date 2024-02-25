@@ -3424,6 +3424,177 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
 }
 
 /**
+ * Write device file "cpu_boost"
+ * writing cpu boost will force custom power mode
+ */
+static ssize_t razer_attr_write_cpu_boost(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    unsigned char mode = 0;
+    unsigned char boost = 0;
+    unsigned char rpm[3] = {0};
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+    unsigned char i;
+
+    if (count < 1) {
+        printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
+        return -EINVAL;
+    }
+
+    pr_info("razer laptop: request mode %s", buf);
+
+    for (i = 0; boost_level[i].name; ++i) {
+        const struct razer_performance_level *level = &boost_level[i];
+        if (!strncasecmp(level->name, buf, strlen(level->name))) {
+            boost = level->value;
+            mode = 0x04; // set custom power profile
+            rpm[RAZER_ZONE_CPU] = 0x00;
+            rpm[RAZER_ZONE_GPU] = 0x00;
+            request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            request = razer_chroma_set_boost(RAZER_ZONE_CPU, boost);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            // read gpu boost from EC
+            request = razer_chroma_get_boost(RAZER_ZONE_GPU);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            boost = response.arguments[2];
+            // set gpu boost
+            request = razer_chroma_set_boost(RAZER_ZONE_GPU, boost);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            // set gpu power mode
+            request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+
+            pr_info("razer laptop: mode set %s", level->name);
+            break;
+        }
+    }
+
+    pr_info("razer laptop: mode check %s", boost_level[i].name);
+    if (!boost_level[i].name)
+        return -EINVAL;
+
+    return count;
+}
+
+/**
+ * Read device file "cpu_boost"
+ */
+static ssize_t razer_attr_read_cpu_boost(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+    unsigned char i;
+
+    request = razer_chroma_get_boost(RAZER_ZONE_CPU);
+    request.transaction_id.id = 0xFF;
+    razer_send_payload(device, &request, &response);
+
+    for (i = 0; boost_level[i].name; ++i) {
+        if (response.arguments[2] == boost_level[i].value) {
+            pr_info("razer laptop: boost level %d - %s", response.arguments[2], boost_level[i]. name);
+            return sprintf(buf, "%s\n", boost_level[i].name);
+        }
+    }
+
+    return sprintf(buf, "%s\n", "unknown");
+}
+
+/**
+ * Write device file "gpu_boost"
+ */
+static ssize_t razer_attr_write_gpu_boost(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    unsigned char mode = 0;
+    unsigned char boost = 0;
+    unsigned char rpm[3] = {0};
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+    unsigned char i;
+
+    if (count < 1) {
+        printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
+        return -EINVAL;
+    }
+
+    pr_info("razer laptop: request mode %s", buf);
+
+    for (i = 0; boost_level[i].name; ++i) {
+        const struct razer_performance_level *level = &boost_level[i];
+        if (!strncasecmp(level->name, buf, strlen(level->name))) {
+            if(level->value > 2) {
+                return -EINVAL;
+            }
+            mode = 0x04; // set custom power profile
+            rpm[RAZER_ZONE_CPU] = 0x00;
+            rpm[RAZER_ZONE_GPU] = 0x00;
+            request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            // since we have no boost we read what is inside EC
+            request = razer_chroma_get_boost(RAZER_ZONE_CPU);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            boost = response.arguments[2];
+            // set cpu boost
+            request = razer_chroma_set_boost(RAZER_ZONE_CPU, boost);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            // set gpu boost
+            boost = level->value;
+            request = razer_chroma_set_boost(RAZER_ZONE_GPU, boost);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+            // set gpu power mode
+            request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
+            request.transaction_id.id = 0xFF;
+            razer_send_payload(device, &request, &response);
+
+            pr_info("razer laptop: mode set %s", level->name);
+            break;
+        }
+    }
+
+    pr_info("razer laptop: mode check %s", boost_level[i].name);
+    if (!boost_level[i].name)
+        return -EINVAL;
+
+    return count;
+}
+
+/**
+ * Read device file "gpu_boost"
+ */
+static ssize_t razer_attr_read_gpu_boost(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+    unsigned char i;
+
+    request = razer_chroma_get_boost(RAZER_ZONE_GPU);
+    request.transaction_id.id = 0xFF;
+    razer_send_payload(device, &request, &response);
+
+    for (i = 0; boost_level[i].name; ++i) {
+        if (response.arguments[2] == boost_level[i].value) {
+            pr_info("razer laptop: boost_level %d - %s", response.arguments[2], boost_level[i]. name);
+            return sprintf(buf, "%s\n", boost_level[i].name);
+        }
+    }
+
+    return sprintf(buf, "%s\n", "unknown");
+}
+
+/**
  * Write device file "bho"
  */
 static ssize_t razer_attr_write_bho(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
@@ -3501,6 +3672,8 @@ static DEVICE_ATTR(charge_low_threshold,    0660, razer_attr_read_charge_low_thr
 // laptop specific
 static DEVICE_ATTR(fan_speed,               0660, razer_attr_read_fan_speed,                  razer_attr_write_fan_speed);
 static DEVICE_ATTR(power_mode,              0660, razer_attr_read_power_mode,                 razer_attr_write_power_mode);
+static DEVICE_ATTR(cpu_boost,               0660, razer_attr_read_cpu_boost,                  razer_attr_write_cpu_boost);
+static DEVICE_ATTR(gpu_boost,               0660, razer_attr_read_gpu_boost,                  razer_attr_write_gpu_boost);
 static DEVICE_ATTR(bho,                     0660, razer_attr_read_bho,                        razer_attr_write_bho);
 
 /**
@@ -4315,6 +4488,8 @@ static int razer_kbd_probe(struct hid_device *hdev, const struct hid_device_id *
             CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_logo_led_state);                // Enable/Disable the logo
             CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_fan_speed);                     // Fan speed/mode
             CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_power_mode);                    // Laptop power mode
+            CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_cpu_boost);                    // Laptop power mode
+            CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_gpu_boost);                    // Laptop power mode
             CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_bho);                           // Laptop battery health optimizer
             break;
 
@@ -4779,6 +4954,8 @@ static void razer_kbd_disconnect(struct hid_device *hdev)
             device_remove_file(&hdev->dev, &dev_attr_logo_led_state);                // Enable/Disable the logo
             device_remove_file(&hdev->dev, &dev_attr_fan_speed);                     // Fan speed/mode
             device_remove_file(&hdev->dev, &dev_attr_power_mode);                    // Laptop power mode
+            device_remove_file(&hdev->dev, &dev_attr_cpu_boost);                    // Laptop power mode
+            device_remove_file(&hdev->dev, &dev_attr_gpu_boost);                    // Laptop power mode
             device_remove_file(&hdev->dev, &dev_attr_bho);                           // Laptop battery health optimizer
             break;
 
