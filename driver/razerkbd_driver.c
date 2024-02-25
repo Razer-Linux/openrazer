@@ -415,8 +415,6 @@ static enum led_brightness backlight_sysfs_get(struct led_classdev *led_cdev) {
     razer_send_payload(device, &request, &response);
     brightness = response.arguments[2];
 
-    printk(KERN_WARNING "razerkbd: brightness read %d\n", brightness);
-
     return brightness;
 }
 
