@@ -167,4 +167,9 @@ struct razer_kbd_device {
     unsigned char left_alt_on;
 };
 
+struct razer_performance_level {
+    const char *name;
+    u8 value;
+};
+
 #endif

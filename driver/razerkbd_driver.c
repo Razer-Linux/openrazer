@@ -194,6 +194,23 @@ static const struct razer_key_translation chroma_keys_5[] = {
     { 0 }
 };
 
+static const struct razer_performance_level[] = {
+    { "balanced", 0 },
+    { "gaming", 1 },
+    { "creators", 2 },
+    { "", 3 },
+    { "custom", 4 },
+    { 0 },
+};
+
+static const struct razer_boost_level[] = {
+    { "low", 0 },
+    { "normal", 1},
+    { "high", 2 },
+    { "boost", 3 },
+    { 0 },
+};
+
 /**
  * Essentially search through the struct array above.
  */
@@ -3368,29 +3385,33 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
 {
     struct razer_kbd_device *device = dev_get_drvdata(dev);
     unsigned char count = 1;
-    unsigned char mode = 0;
     struct razer_report request = {0};
     struct razer_report response = {0};
+    unsigned char i;
 
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
     request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
     mode = response.arguments[2];
-    buf[0] = mode;
-    if(mode == 4)
-    {
-        count = 3;
-        request = razer_chroma_get_boost(RAZER_ZONE_CPU);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-        buf[RAZER_ZONE_CPU] = response.arguments[2];
-        request = razer_chroma_get_boost(RAZER_ZONE_GPU);
-        request.transaction_id.id = 0xFF;
-        razer_send_payload(device, &request, &response);
-        buf[RAZER_ZONE_GPU] = response.arguments[2];
+    // if(mode == 4)
+    // {
+    //     count = 3;
+    //     request = razer_chroma_get_boost(RAZER_ZONE_CPU);
+    //     request.transaction_id.id = 0xFF;
+    //     razer_send_payload(device, &request, &response);
+    //     buf[RAZER_ZONE_CPU] = response.arguments[2];
+    //     request = razer_chroma_get_boost(RAZER_ZONE_GPU);
+    //     request.transaction_id.id = 0xFF;
+    //     razer_send_payload(device, &request, &response);
+    //     buf[RAZER_ZONE_GPU] = response.arguments[2];
+    // }
+
+    for (i = 0; razer_performance_level[i].name; ++i) {
+        if (response.arguments[2] == razer_performance_level[i].value)
+            return sprintf(buf, "%s\n", razer_performance_level[i].name);
     }
 
-    return count;
+    return sprintf(buf, "%s\n", "unknown");
 }
 
 /**
