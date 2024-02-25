@@ -3333,8 +3333,6 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
         return -EINVAL;
     }
 
-    pr_info("razer laptop: request mode %s", buf);
-
     for (i = 0; performance_level[i].name; ++i) {
         const struct razer_performance_level *level = &performance_level[i];
         if (!strncasecmp(level->name, buf, strlen(level->name))) {
@@ -3387,12 +3385,10 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
                 razer_send_payload(device, &request, &response);
             }
 
-            pr_info("razer laptop: mode set %s", level->name);
             break;
         }
     }
 
-    pr_info("razer laptop: mode check %s", performance_level[i].name);
     if (!performance_level[i].name)
         return -EINVAL;
 
@@ -3415,7 +3411,6 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
 
     for (i = 0; performance_level[i].name; ++i) {
         if (response.arguments[2] == performance_level[i].value) {
-            pr_info("razer laptop: power_mode %d - %s", response.arguments[2], performance_level[i]. name);
             return sprintf(buf, "%s\n", performance_level[i].name);
         }
     }
@@ -3441,8 +3436,6 @@ static ssize_t razer_attr_write_cpu_boost(struct device *dev, struct device_attr
         printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
         return -EINVAL;
     }
-
-    pr_info("razer laptop: request mode %s", buf);
 
     for (i = 0; boost_level[i].name; ++i) {
         const struct razer_performance_level *level = &boost_level[i];
@@ -3471,12 +3464,10 @@ static ssize_t razer_attr_write_cpu_boost(struct device *dev, struct device_attr
             request.transaction_id.id = 0xFF;
             razer_send_payload(device, &request, &response);
 
-            pr_info("razer laptop: mode set %s", level->name);
             break;
         }
     }
 
-    pr_info("razer laptop: mode check %s", boost_level[i].name);
     if (!boost_level[i].name)
         return -EINVAL;
 
@@ -3499,7 +3490,6 @@ static ssize_t razer_attr_read_cpu_boost(struct device *dev, struct device_attri
 
     for (i = 0; boost_level[i].name; ++i) {
         if (response.arguments[2] == boost_level[i].value) {
-            pr_info("razer laptop: boost level %d - %s", response.arguments[2], boost_level[i]. name);
             return sprintf(buf, "%s\n", boost_level[i].name);
         }
     }
@@ -3524,8 +3514,6 @@ static ssize_t razer_attr_write_gpu_boost(struct device *dev, struct device_attr
         printk(KERN_ALERT "razerkbd: Failed to provide argument\n");
         return -EINVAL;
     }
-
-    pr_info("razer laptop: request mode %s", buf);
 
     for (i = 0; boost_level[i].name; ++i) {
         const struct razer_performance_level *level = &boost_level[i];
@@ -3558,12 +3546,10 @@ static ssize_t razer_attr_write_gpu_boost(struct device *dev, struct device_attr
             request.transaction_id.id = 0xFF;
             razer_send_payload(device, &request, &response);
 
-            pr_info("razer laptop: mode set %s", level->name);
             break;
         }
     }
 
-    pr_info("razer laptop: mode check %s", boost_level[i].name);
     if (!boost_level[i].name)
         return -EINVAL;
 
@@ -3586,7 +3572,6 @@ static ssize_t razer_attr_read_gpu_boost(struct device *dev, struct device_attri
 
     for (i = 0; boost_level[i].name; ++i) {
         if (response.arguments[2] == boost_level[i].value) {
-            pr_info("razer laptop: boost_level %d - %s", response.arguments[2], boost_level[i]. name);
             return sprintf(buf, "%s\n", boost_level[i].name);
         }
     }
