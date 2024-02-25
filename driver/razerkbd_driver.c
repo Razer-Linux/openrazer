@@ -3581,12 +3581,28 @@ static ssize_t razer_attr_read_gpu_boost(struct device *dev, struct device_attri
 
 /**
  * Write device file "bho"
+ * write 0 will disable bho
+ * write digit from 20 to 80 will set bho on
  */
 static ssize_t razer_attr_write_bho(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    // struct razer_kbd_device *device = dev_get_drvdata(dev);
+    struct razer_kbd_device *device = dev_get_drvdata(dev);
+    struct razer_report request = {0};
+    struct razer_report response = {0};
+    unsigned char threshold = (unsigned char)simple_strtoul(buf, NULL, 10);
 
-    // TODO
+    if((threshold != 0) && ((threshold < 20) || (threshold > 80))) {
+        printk(KERN_ALERT "razerkbd: bho must be between 20 and 80 %\n");
+        return -EINVAL;
+    }
+
+    if(threshold > 0) {
+        threshold |= 0x80; // enable
+    }
+
+    request = razer_chroma_set_bho(threshold);
+    request.transaction_id.id = 0xFF;
+    razer_send_payload(device, &request, &response);
 
     return count;
 }
@@ -3599,12 +3615,17 @@ static ssize_t razer_attr_read_bho(struct device *dev, struct device_attribute *
     struct razer_kbd_device *device = dev_get_drvdata(dev);
     struct razer_report request = {0};
     struct razer_report response = {0};
+    unsigned char threshold = 0;
 
     request = razer_chroma_get_bho();
     request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
 
-    return sprintf(buf, "%d\n", response.arguments[0]);
+    if(0x80 & response.arguments) {
+        threshold = 0x7f & response.arguments[0];
+    }
+
+    return sprintf(buf, "%d\n", (0x7F & response.arguments[0]));
 }
 
 /**
