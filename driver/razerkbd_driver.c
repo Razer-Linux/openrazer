@@ -3621,7 +3621,7 @@ static ssize_t razer_attr_read_bho(struct device *dev, struct device_attribute *
     request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
 
-    if(0x80 & response.arguments) {
+    if(0x80 & response.arguments[0]) {
         threshold = 0x7f & response.arguments[0];
     }
 
