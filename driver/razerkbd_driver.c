@@ -3406,6 +3406,7 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
 
     for (i = 0; performance_level[i].name; ++i) {
         if (response.arguments[2] == performance_level[i].value)
+            pr_info("razer laptop: power_mode %d - %s", response.arguments[2], performance_level[i]. name);
             return sprintf(buf, "%s\n", performance_level[i].name);
     }
 
