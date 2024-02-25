@@ -194,7 +194,7 @@ static const struct razer_key_translation chroma_keys_5[] = {
     { 0 }
 };
 
-static const struct razer_performance_level[] = {
+static const struct razer_performance_level performance_level[] = {
     { "balanced", 0 },
     { "gaming", 1 },
     { "creators", 2 },
@@ -203,7 +203,7 @@ static const struct razer_performance_level[] = {
     { 0 },
 };
 
-static const struct razer_boost_level[] = {
+static const struct razer_boost_level boost_level[] = {
     { "low", 0 },
     { "normal", 1},
     { "high", 2 },
@@ -3406,9 +3406,9 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
     //     buf[RAZER_ZONE_GPU] = response.arguments[2];
     // }
 
-    for (i = 0; razer_performance_level[i].name; ++i) {
-        if (response.arguments[2] == razer_performance_level[i].value)
-            return sprintf(buf, "%s\n", razer_performance_level[i].name);
+    for (i = 0; performance_level[i].name; ++i) {
+        if (response.arguments[2] == performance_level[i].value)
+            return sprintf(buf, "%s\n", performance_level[i].name);
     }
 
     return sprintf(buf, "%s\n", "unknown");
