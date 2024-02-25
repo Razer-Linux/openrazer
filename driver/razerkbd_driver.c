@@ -3340,7 +3340,7 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
     //     return -EINVAL;
     // }
     for (i = 0; performance_level[i].name; ++i) {
-        const struct razer_performance_level *level = performance_level[i];
+        const struct razer_performance_level *level = &performance_level[i];
         if (!strncasecmp(level->name, buf, strlen(level->name))) {
             mode = level->value;
             request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
@@ -3415,9 +3415,10 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
     // }
 
     for (i = 0; performance_level[i].name; ++i) {
-        if (response.arguments[2] == performance_level[i].value)
+        if (response.arguments[2] == performance_level[i].value) {
             pr_info("razer laptop: power_mode %d - %s", response.arguments[2], performance_level[i]. name);
             return sprintf(buf, "%s\n", performance_level[i].name);
+        }
     }
 
     return sprintf(buf, "%s\n", "unknown");
