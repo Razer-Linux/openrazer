@@ -3359,17 +3359,29 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
             } else if(mode == 4) {
                 rpm[RAZER_ZONE_CPU] = 0x00;
                 rpm[RAZER_ZONE_GPU] = 0x00;
+                // set cpu power mode
                 request = razer_chroma_set_power_mode(mode, RAZER_ZONE_CPU, rpm[RAZER_ZONE_CPU]);
                 request.transaction_id.id = 0xFF;
                 razer_send_payload(device, &request, &response);
-                boost = 0x01;
+                // since we have no boost we read what is inside EC
+                request = razer_chroma_get_boost(RAZER_ZONE_CPU);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+                boost = response.arguments[2];
+                // set cpu boost
                 request = razer_chroma_set_boost(RAZER_ZONE_CPU, boost);
                 request.transaction_id.id = 0xFF;
                 razer_send_payload(device, &request, &response);
-                boost = 0x01;
+                // read gpu boost from EC
+                request = razer_chroma_get_boost(RAZER_ZONE_GPU);
+                request.transaction_id.id = 0xFF;
+                razer_send_payload(device, &request, &response);
+                boost = response.arguments[2];
+                // set gpu boost
                 request = razer_chroma_set_boost(RAZER_ZONE_GPU, boost);
                 request.transaction_id.id = 0xFF;
                 razer_send_payload(device, &request, &response);
+                // set gpu power mode
                 request = razer_chroma_set_power_mode(mode, RAZER_ZONE_GPU, rpm[RAZER_ZONE_GPU]);
                 request.transaction_id.id = 0xFF;
                 razer_send_payload(device, &request, &response);
