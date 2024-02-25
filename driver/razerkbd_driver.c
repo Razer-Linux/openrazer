@@ -3384,7 +3384,6 @@ static ssize_t razer_attr_write_power_mode(struct device *dev, struct device_att
 static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attribute *attr, char *buf)
 {
     struct razer_kbd_device *device = dev_get_drvdata(dev);
-    unsigned char count = 1;
     struct razer_report request = {0};
     struct razer_report response = {0};
     unsigned char i;
@@ -3392,7 +3391,6 @@ static ssize_t razer_attr_read_power_mode(struct device *dev, struct device_attr
     request = razer_chroma_get_power_mode(RAZER_ZONE_CPU);
     request.transaction_id.id = 0xFF;
     razer_send_payload(device, &request, &response);
-    mode = response.arguments[2];
     // if(mode == 4)
     // {
     //     count = 3;
