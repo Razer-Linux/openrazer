@@ -3592,7 +3592,7 @@ static ssize_t razer_attr_write_bho(struct device *dev, struct device_attribute 
     unsigned char threshold = (unsigned char)simple_strtoul(buf, NULL, 10);
 
     if((threshold != 0) && ((threshold < 20) || (threshold > 80))) {
-        printk(KERN_ALERT "razerkbd: bho must be between 20 and 80 %\n");
+        printk(KERN_ALERT "razerkbd: bho must be between 20 and 80\n");
         return -EINVAL;
     }
 
