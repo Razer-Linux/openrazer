@@ -607,7 +607,7 @@ class RazerDevice(object):
         """
         Set battery health optimizer
         :param threshold: battery threshold in % if zero - disabled
-        :type boost: int
+        :type threshold: int
         """
         
         if self.has('bho'):
