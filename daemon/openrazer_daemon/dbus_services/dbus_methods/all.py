@@ -258,7 +258,7 @@ def set_power_mode(self, power_mode):
     driver_path = self.get_driver_path('power_mode')
 
     with open(driver_path, 'w') as driver_file:
-        driver_file.write(str(power_mode))
+        driver_file.write(power_mode)
 
 
 @endpoint('razer.device.misc', 'getPowerMode', out_sig='s')
