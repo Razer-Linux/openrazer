@@ -331,7 +331,7 @@ def get_gpu_boost(self):
         return driver_file.read().strip()
 
 
-@endpoint('razer.device.misc', 'setBHO', in_sig='d')
+@endpoint('razer.device.misc', 'setBHO', in_sig='i')
 def set_bho(self, threshold):
     """
      set battery health optimizer
@@ -345,7 +345,7 @@ def set_bho(self, threshold):
         driver_file.write(str(threshold))
 
 
-@endpoint('razer.device.misc', 'getBHO', out_sig='d')
+@endpoint('razer.device.misc', 'getBHO', out_sig='i')
 def get_bho(self):
     """
      get battery health optimizer
