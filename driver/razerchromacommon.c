@@ -1705,6 +1705,7 @@ struct razer_report razer_chroma_get_bho(void)
 {
     struct razer_report report = get_razer_report(0x07, 0x92, 0x01);
     report.arguments[0] = 0x00;
+    report.remaining_packets = 0x100; //don't know why
 
     return report;
 }

@@ -3629,9 +3629,11 @@ static ssize_t razer_attr_read_bho(struct device *dev, struct device_attribute *
 
     if(0x80 & response.arguments[0]) {
         threshold = 0x7f & response.arguments[0];
+    } else {
+        threshold = 0x00;
     }
 
-    return sprintf(buf, "%d\n", (0x7F & response.arguments[0]));
+    return sprintf(buf, "%d\n", threshold);
 }
 
 /**
