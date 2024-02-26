@@ -354,5 +354,5 @@ def get_bho(self):
     self.logger.debug("DBus call get_bho")
 
     driver_path = self.get_driver_path('bho')
-    with open(driver_path, 'w') as driver_file:
+    with open(driver_path, 'r') as driver_file:
         return int(driver_file.read().strip())
