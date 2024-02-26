@@ -325,7 +325,7 @@ def get_gpu_boost(self):
 
     self.logger.debug("DBus call get_gpu_boost")
 
-    driver_path = self.get_driver_path('cpu_boost')
+    driver_path = self.get_driver_path('gpu_boost')
 
     with open(driver_path, 'r') as driver_file:
         return driver_file.read().strip()
