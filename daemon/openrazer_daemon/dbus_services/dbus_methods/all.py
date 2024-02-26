@@ -210,3 +210,149 @@ def get_matrix_dims(self):
         raise RuntimeError("HAS_MATRIX is set but no MATRIX_DIMS set!")
 
     return list(self.MATRIX_DIMS)
+
+
+@endpoint('razer.device.misc', 'setFanSpeed', in_sig='d')
+def set_fan_speed(self, fan_speed):
+    """
+     set fan speed
+     :param fan_speed: speed in RPMs if 0 - auto mode
+    """
+
+    self.logger.debug("DBus call set_fan_speed")
+
+    if fan_speed > 5300:
+        fan_speed = 5300
+    elif fan_speed != 0 and fan_speed < 3500:
+        fan_speed = 3500
+
+    driver_path = self.get_driver_path('fan_speed')
+
+    with open(driver_path, 'w') as driver_file:
+        driver_file.write(str(fan_speed))
+
+
+@endpoint('razer.device.misc', 'getFanSpeed', out_sig='d')
+def get_fan_speed(self):
+    """
+     get fan speed
+     :return fan_speed: speed in RPMs
+    """
+
+    self.logger.debug("DBus call get_fan_speed")
+
+    driver_path = self.get_driver_path('fan_speed')
+
+    with open(driver_path, 'r') as driver_file:
+        return int(driver_file.read().strip())
+
+
+@endpoint('razer.device.misc', 'setPowerMode', in_sig='s')
+def set_power_mode(self, power_mode):
+    """
+     set power mode as string
+    """
+
+    self.logger.debug("DBus call set_power_mode")
+
+    driver_path = self.get_driver_path('power_mode')
+
+    with open(driver_path, 'w') as driver_file:
+        driver_file.write(str(power_mode))
+
+
+@endpoint('razer.device.misc', 'getPowerMode', out_sig='s')
+def get_power_mode(self):
+    """
+     get power mode
+    """
+
+    self.logger.debug("DBus call get_power_mode")
+
+    driver_path = self.get_driver_path('power_mode')
+
+    with open(driver_path, 'r') as driver_file:
+        return driver_file.read().strip()
+
+
+@endpoint('razer.device.misc', 'setCPUBoost', in_sig='s')
+def set_cpu_boost(self, boost):
+    """
+     set CPU boost
+    """
+
+    self.logger.debug("DBus call set_cpu_boost")
+
+    driver_path = self.get_driver_path('cpu_boost')
+
+    with open(driver_path, 'w') as driver_file:
+        driver_file.write(boost)
+
+
+@endpoint('razer.device.misc', 'getCPUBoost', out_sig='s')
+def get_cpu_boost(self):
+    """
+     get CPU boost
+    """
+
+    self.logger.debug("DBus call get_cpu_boost")
+
+    driver_path = self.get_driver_path('cpu_boost')
+
+    with open(driver_path, 'r') as driver_file:
+        return driver_file.read().strip()
+
+
+@endpoint('razer.device.misc', 'setGPUBoost', in_sig='s')
+def set_gpu_boost(self, boost):
+    """
+     set GPU boost
+    """
+
+    self.logger.debug("DBus call set_gpu_boost")
+
+    driver_path = self.get_driver_path('gpu_boost')
+
+    with open(driver_path, 'w') as driver_file:
+        driver_file.write(boost)
+
+
+@endpoint('razer.device.misc', 'getGPUBoost', out_sig='s')
+def get_gpu_boost(self):
+    """
+     get GPU boost
+    """
+
+    self.logger.debug("DBus call get_gpu_boost")
+
+    driver_path = self.get_driver_path('cpu_boost')
+
+    with open(driver_path, 'r') as driver_file:
+        return driver_file.read().strip()
+
+
+@endpoint('razer.device.misc', 'setBHO', in_sig='d')
+def set_bho(self, threshold):
+    """
+     set battery health optimizer
+    """
+
+    self.logger.debug("DBus call set_bho")
+
+    driver_path = self.get_driver_path('bho')
+
+    with open(driver_path, 'w') as driver_file:
+        driver_file.write(str(threshold))
+
+
+@endpoint('razer.device.misc', 'getBHO', out_sig='d')
+def get_bho(self):
+    """
+     get battery health optimizer
+    """
+
+    self.logger.debug("DBus call get_bho")
+
+    driver_path = self.get_driver_path('bho')
+    with open(driver_path, 'w') as driver_file:
+        return int(driver_file.read().strip())

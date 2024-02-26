@@ -69,6 +69,12 @@ class RazerDevice(object):
             'macro_mode_modifier': self._has_feature('razer.device.macro', 'setModeModifier'),
             'reactive_trigger': self._has_feature('razer.device.misc', 'triggerReactive'),
 
+            'fan_speed': self._has_feature('razer.device.misc', ('getFanSpeed', 'setFanSpeed')),
+            'power_mode': self._has_feature('razer.device.misc', ('getPowerMode', 'setPowerMode')),
+            'cpu_boost': self._has_feature('razer.device.misc', ('getCPUBoost', 'setCPUBoost')),
+            'gpu_boost': self._has_feature('razer.device.misc', ('getGPUBoost', 'setGPUBoost')),
+            'bho': self._has_feature('razer.device.misc', ('getBHO', 'setBHO')),
+
             'poll_rate': self._has_feature('razer.device.misc', ('getPollRate', 'setPollRate')),
             'supported_poll_rates': self._has_feature('razer.device.misc', 'getSupportedPollRates'),
             'dpi': self._has_feature('razer.device.dpi', ('getDPI', 'setDPI')),
@@ -513,6 +519,110 @@ class RazerDevice(object):
         """
         if self.has('battery'):
             return int(self._dbus_interfaces['power'].getLowBatteryThreshold())
+
+    def set_fan_speed(self, fan_speed) -> None:
+        """
+        Set fan speed
+        :param fan_speed: RPMs if zero it is auto mode
+        :type fan_speed: int
+        """
+        if self.has('fan_speed'):
+            self._dbus_interfaces['device'].setFanSpeed(fan_speed)
+
+    def get_fan_speed(self) -> int:
+        """
+        Get fan speed
+        :return: fan speed as RPMs if 0 - auto mode
+        """
+
+        if self.has('fan_speed'):
+            return int(self._dbus_interfaces['device'].getFanSpeed())
+        else:
+            raise NotImplementedError()
+
+    def set_power_mode(self, mode) -> None:
+        """
+        Set power mode
+        :param mode: balanced, gaming, creators, custom
+        :type mode: string
+        """
+        
+        if self.has('power_mode'):
+            self._dbus_interfaces['device'].setPowerMode(mode)
+
+    def get_power_mode(self) -> str:
+        """
+        Get power mode
+        :return: power mode
+        """
+        
+        if self.has('power_mode'):
+            return self._dbus_interfaces['device'].getPowerMode()
+        else:
+            raise NotImplementedError()
+
+    def set_cpu_boost(self, boost) -> None:
+        """
+        Set CPU boost
+        :param boost: low, normal, high, boost
+        :type boost: string
+        """
+        
+        if self.has('cpu_boost'):
+            self._dbus_interfaces['device'].setCPUBoost(boost)
+
+    def get_cpu_boost(self) -> str:
+        """
+        Get CPU boost
+        :return: CPU boost
+        """
+        
+        if self.has('cpu_boost'):
+            return self._dbus_interfaces['device'].getCPUBoost()
+        else:
+            raise NotImplementedError()
+
+    def set_gpu_boost(self, boost) -> None:
+        """
+        Set GPU boost
+        :param boost: low, normal, high
+        :type boost: string
+        """
+        
+        if self.has('gpu_boost'):
+            self._dbus_interfaces['device'].setGPUBoost(boost)
+
+    def get_gpu_boost(self) -> str:
+        """
+        Get GPU boost
+        :return: GPU boost
+        """
+        
+        if self.has('gpu_boost'):
+            return self._dbus_interfaces['device'].getGPUBoost()
+        else:
+            raise NotImplementedError()
+
+    def set_bho(self, threshold) -> None:
+        """
+        Set battery health optimizer
+        :param threshold: battery threshold in % if zero - disabled
+        :type boost: int
+        """
+        
+        if self.has('bho'):
+            self._dbus_interfaces['device'].setBHO(threshold)
+
+    def get_bho(self) -> int:
+        """
+        Get battery health optimizer
+        :return: threshold in % if 0 - disabled
+        """
+        
+        if self.has('bho'):
+            return int(self._dbus_interfaces['device'].getBHO())
+        else:
+            raise NotImplementedError()
 
     @property
     def poll_rate(self) -> int:

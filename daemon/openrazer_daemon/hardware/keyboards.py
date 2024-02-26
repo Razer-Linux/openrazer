@@ -1868,7 +1868,9 @@ class RazerBlade142023(_RippleKeyboard):
     USB_PID = 0x029D
     HAS_MATRIX = True
     MATRIX_DIMS = [6, 16]
-    METHODS = ['get_device_type_keyboard', 'get_logo_active', 'set_logo_active', 'set_wave_effect', 'set_static_effect', 'set_spectrum_effect',
+    METHODS = ['get_device_type_keyboard', 'get_fan_speed', 'set_fan_speed', 'get_power_mode', 'set_power_mode',
+               'get_cpu_boost', 'set_cpu_boost', 'get_gpu_boost', 'set_gpu_boost', 'get_bho', 'set_bho',
+               'get_logo_active', 'set_logo_active', 'set_wave_effect', 'set_static_effect', 'set_spectrum_effect',
                'set_reactive_effect', 'set_none_effect', 'set_breath_random_effect', 'set_breath_single_effect',
                'set_breath_dual_effect', 'set_custom_effect', 'set_key_row',
                'set_starlight_random_effect', 'set_starlight_single_effect', 'set_starlight_dual_effect',
