@@ -212,7 +212,7 @@ def get_matrix_dims(self):
     return list(self.MATRIX_DIMS)
 
 
-@endpoint('razer.device.misc', 'setFanSpeed', in_sig='d')
+@endpoint('razer.device.misc', 'setFanSpeed', in_sig='i')
 def set_fan_speed(self, fan_speed):
     """
      set fan speed
@@ -232,7 +232,7 @@ def set_fan_speed(self, fan_speed):
         driver_file.write(str(fan_speed))
 
 
-@endpoint('razer.device.misc', 'getFanSpeed', out_sig='d')
+@endpoint('razer.device.misc', 'getFanSpeed', out_sig='i')
 def get_fan_speed(self):
     """
      get fan speed
