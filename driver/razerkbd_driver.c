@@ -3598,6 +3598,12 @@ static ssize_t razer_attr_write_bho(struct device *dev, struct device_attribute 
 
     if(threshold > 0) {
         threshold |= 0x80; // enable
+    } else {
+        // when disable we have to read previous value before zero most significant bit
+        request = razer_chroma_get_bho();
+        request.transaction_id.id = 0xFF;
+        razer_send_payload(device, &request, &response);
+        threshold = 0x7f & response.arguments[0];
     }
 
     request = razer_chroma_set_bho(threshold);
