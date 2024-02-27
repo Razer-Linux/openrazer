@@ -198,7 +198,7 @@ static const struct razer_performance_level performance_level[] = {
     { "balanced", 0 },
     { "gaming", 1 },
     { "creators", 2 },
-    { "", 3 },
+    { "reserve", 3 },
     { "custom", 4 },
     { 0 },
 };
