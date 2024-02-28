@@ -228,6 +228,9 @@ def set_fan_speed(self, fan_speed):
 
     driver_path = self.get_driver_path('fan_speed')
 
+    self.set_persistence(None, "fan_speed", int(fan_speed))
+    self.fan_speed = int(fan_speed)
+
     with open(driver_path, 'w') as driver_file:
         driver_file.write(str(fan_speed))
 
@@ -256,6 +259,8 @@ def set_power_mode(self, power_mode):
     self.logger.debug("DBus call set_power_mode")
 
     driver_path = self.get_driver_path('power_mode')
+    self.set_persistence(None, "power_mode", power_mode)
+    self.power_mode = power_mode
 
     with open(driver_path, 'w') as driver_file:
         driver_file.write(power_mode)
@@ -285,6 +290,9 @@ def set_cpu_boost(self, boost):
 
     driver_path = self.get_driver_path('cpu_boost')
 
+    self.set_persistence(None, "cpu_boost", boost)
+    self.cpu_boost = boost
+
     with open(driver_path, 'w') as driver_file:
         driver_file.write(boost)
 
@@ -313,6 +321,9 @@ def set_gpu_boost(self, boost):
 
     driver_path = self.get_driver_path('gpu_boost')
 
+    self.set_persistence(None, "gpu_boost", boost)
+    self.gpu_boost = boost
+
     with open(driver_path, 'w') as driver_file:
         driver_file.write(boost)
 
@@ -340,6 +351,9 @@ def set_bho(self, threshold):
     self.logger.debug("DBus call set_bho")
 
     driver_path = self.get_driver_path('bho')
+
+    self.set_persistence(None, "bho", int(threshold))
+    self.bho = int(threshold)
 
     with open(driver_path, 'w') as driver_file:
         driver_file.write(str(threshold))

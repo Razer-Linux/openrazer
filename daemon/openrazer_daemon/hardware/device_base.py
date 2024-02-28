@@ -111,6 +111,14 @@ class RazerDevice(DBusService):
         if 'set_poll_rate' in self.METHODS and not self.POLL_RATES:
             self.POLL_RATES = [125, 500, 1000]
 
+        # auto fan speed
+        self.fan_speed = 0
+        # balanced mode
+        self.power_mode = 'balanced'
+        self.cpu_boost = 'normal'
+        self.gpu_boost = 'low'
+        self.bho = 80
+
         self._effect_sync = effect_sync.EffectSync(self, device_number)
 
         self._is_closed = False
@@ -262,6 +270,36 @@ class RazerDevice(DBusService):
                 except (KeyError, configparser.NoOptionError):
                     self.logger.info("Failed to get poll rate from persistence storage, using default.")
 
+            if 'set_fan_speed' in self.METHODS:
+                try:
+                    self.fan_speed = int(self.persistence[self.storage_name]['fan_speed'])
+                except (KeyError, configparser.NoOptionError):
+                    self.logger.info("Failed to get fan speed from persistence storage, using default.")
+
+            if 'set_power_mode' in self.METHODS:
+                try:
+                    self.power_mode = self.persistence[self.storage_name]['power_mode']
+                except (KeyError, configparser.NoOptionError):
+                    self.logger.info("Failed to get power mode from persistence storage, using default.")
+
+            if 'set_cpu_boost' in self.METHODS:
+                try:
+                    self.cpu_boost = self.persistence[self.storage_name]['cpu_boost']
+                except (KeyError, configparser.NoOptionError):
+                    self.logger.info("Failed to get cpu boost from persistence storage, using default.")
+
+            if 'set_gpu_boost' in self.METHODS:
+                try:
+                    self.gpu_boost = self.persistence[self.storage_name]['gpu_boost']
+                except (KeyError, configparser.NoOptionError):
+                    self.logger.info("Failed to get gpu boost from persistence storage, using default.")
+
+            if 'set_bho' in self.METHODS:
+                try:
+                    self.bho = int(self.persistence[self.storage_name]['bho'])
+                except (KeyError, configparser.NoOptionError):
+                    self.logger.info("Failed to get battery health optimizer from persistence storage, using default.")
+
         # load last effects
         for i in self.ZONES:
             if self.zone[i]["present"]:
@@ -322,6 +360,7 @@ class RazerDevice(DBusService):
 
         self.restore_dpi_poll_rate()
         self.restore_brightness()
+        self.restore_laptop()
 
         if self.config.getboolean('Startup', "restore_persistence") is True:
             self.restore_effect()
@@ -349,6 +388,27 @@ class RazerDevice(DBusService):
         :rtype: bool
         """
         return self.DEDICATED_MACRO_KEYS
+
+    def restore_laptop(self):
+        """
+        Set laptops parameters
+        """
+        func = getattr(self, "setFanSpeed", None)
+        if func is not None:
+            func(self.fan_speed)
+        func = getattr(self, "setPowerMode", None)
+        if func is not None:
+            func(self.power_mode)
+            if self.power_mode == 'custom':
+                boost_func = getattr(self, "setCPUBoost", None)
+                if boost_func is not None:
+                    boost_func(self.cpu_boost)
+                boost_func = getattr(self, "setGPUBoost", None)
+                if boost_func is not None:
+                    boost_func(self.gpu_boost)
+        func = getattr(self, "setBHO", None)
+        if func is not None:
+            func(self.bho)
 
     def restore_dpi_poll_rate(self):
         """
