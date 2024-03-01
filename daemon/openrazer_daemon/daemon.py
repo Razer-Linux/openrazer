@@ -344,11 +344,11 @@ class RazerDaemon(DBusService):
 
             if 'set_cpu_boost' in device.dbus.METHODS:
                 cpu_bost = device.dbus.cpu_boost
-                self._persistence[device.dbus.storage_name]['cpu_bost'] = str(cpu_bost)
+                self._persistence[device.dbus.storage_name]['cpu_boost'] = str(cpu_bost)
 
             if 'set_gpu_boost' in device.dbus.METHODS:
                 gpu_bost = device.dbus.gpu_boost
-                self._persistence[device.dbus.storage_name]['gpu_bost'] = str(gpu_bost)
+                self._persistence[device.dbus.storage_name]['gpu_boost'] = str(gpu_bost)
 
             if 'set_bho' in device.dbus.METHODS:
                 bho = int(device.dbus.bho)
